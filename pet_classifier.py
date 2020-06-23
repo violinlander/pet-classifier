@@ -12,6 +12,9 @@ class myCallback(tf.keras.callbacks.Callback):
 
 
 imgDir = './pet-classifier-images/'
+validationDir = './validation-images'
+target_size = (300,300)
+
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
 if gpus:
@@ -65,16 +68,27 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 train_datagen = ImageDataGenerator(rescale=1.0/255.0)
 train_generator = train_datagen.flow_from_directory(
     imgDir,
-    target_size=(300,300),
+    target_size=target_size,
     batch_size=16,
     class_mode='binary'
 )
 
 callbacks = myCallback()
+
+validation_datagen = ImageDataGenerator(rescale=1.0/255.0)
+
+validation_generator = validation_datagen.flow_from_directory(
+    validationDir,
+    target_size=target_size,
+    batch_size=16,
+    class_mode='binary'
+)
 history = model.fit(
     train_generator,
     steps_per_epoch=8,
-    epochs=20,
-    verbose=2,
-    callbacks=[callbacks]
+    epochs=100,
+    verbose=1,
+    validation_data=validation_generator,
+    validation_steps=8,
+    #callbacks=[callbacks]
 )
