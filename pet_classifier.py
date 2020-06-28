@@ -14,7 +14,7 @@ class myCallback(tf.keras.callbacks.Callback):
 
 imgDir = './pet-classifier-images/'
 validationDir = './validation-images'
-target_size = (600,600)
+target_size = (1000,1000)
 
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
@@ -35,35 +35,40 @@ if gpus:
 
 
 model = tf.keras.models.Sequential([
-    tf.keras.layers.Conv2D(128, (3,3), activation='relu', input_shape=(600,600,3)),
+
+    tf.keras.layers.Conv2D(128, (3,3), activation='relu', input_shape=(target_size[0],target_size[1],3)),
+    tf.keras.layers.MaxPool2D(2,2),
+    tf.keras.layers.Conv2D(128, (3,3), activation='relu'),
+    tf.keras.layers.MaxPool2D(2,2),
+    tf.keras.layers.Conv2D(128, (3,3), activation='relu'),
     tf.keras.layers.MaxPool2D(2,2),
 
-    tf.keras.layers.Conv2D(64, (3,3), activation='relu'),
-    tf.keras.layers.MaxPool2D(2,2),
-
-    tf.keras.layers.Conv2D(32, (3,3), activation='relu'),
-    tf.keras.layers.MaxPool2D(2,2),
-
-    tf.keras.layers.Conv2D(16, (3,3), activation='relu'),
-    tf.keras.layers.MaxPool2D(2,2),
-
-    tf.keras.layers.Conv2D(16, (3,3), activation='relu'),
-    tf.keras.layers.MaxPool2D(2,2),
     
     tf.keras.layers.Flatten(),
-
     tf.keras.layers.Dense(1024, activation='relu'),
-    tf.keras.layers.Dense(512, activation='relu'),
+    tf.keras.layers.Dense(1024, activation='relu'),
+    tf.keras.layers.Dense(1024, activation='relu'),
+    tf.keras.layers.Dense(1024, activation='relu'),
+    tf.keras.layers.Dense(1024, activation='relu'),
+    tf.keras.layers.Dense(1024, activation='relu'),
+    tf.keras.layers.Dense(1024, activation='relu'),
+    tf.keras.layers.Dense(1024, activation='relu'),
+    tf.keras.layers.Dense(1024, activation='relu'),
+    tf.keras.layers.Dense(1024, activation='relu'),
+    tf.keras.layers.Dense(1024, activation='relu'),
+    tf.keras.layers.Dense(1024, activation='relu'),
     tf.keras.layers.Dense(1, activation='sigmoid')
     
 ])
 
 model.compile(
     loss='binary_crossentropy',
-    optimizer=RMSprop(lr=0.01),
+    optimizer='adam',
+#    optimizer=RMSprop(lr=0.01),
     metrics=['accuracy']    
 )
 
+model.summary()
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 
@@ -72,7 +77,7 @@ train_datagen = ImageDataGenerator(rescale=1.0/255.0)
 train_generator = train_datagen.flow_from_directory(
     imgDir,
     target_size=target_size,
-    batch_size=2,
+    batch_size=1,
     class_mode='binary'
 )
 
@@ -83,13 +88,13 @@ validation_datagen = ImageDataGenerator(rescale=1.0/255.0)
 validation_generator = validation_datagen.flow_from_directory(
     validationDir,
     target_size=target_size,
-    batch_size=2,
+    batch_size=1,
     class_mode='binary'
 )
 history = model.fit(
     train_generator,
     steps_per_epoch=8,
-    epochs=500,
+    epochs=20,
     verbose=1,
     validation_data=validation_generator,
     validation_steps=8,
